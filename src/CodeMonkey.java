@@ -7,6 +7,7 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -14,27 +15,6 @@ import com.google.gson.Gson;
 
 public class CodeMonkey {
 	public static void main(String[] args) {
-		// HTML scrape
-		try {
-			// Get a query from the user
-			String query = "java iterate through all characters in a string";
-			
-			// Get URLs from Google
-			List<String> urls = searchGoogle( query );
-
-			// Search StackOverflow for code samples
-			List<String> code = searchStackOverflow( urls );
-			
-			// Print the results
-			for (String c : code) {
-				System.out.println( c );
-				System.out.println( "--------------------" );
-			}
-		} catch (Exception e) {
-			System.out.println( e.getMessage() );
-		}
-		
-/*
 		// API
 		try {
 			// Get a query from the user
@@ -50,7 +30,7 @@ public class CodeMonkey {
 			}
 			
 			// Get code samples from StackOverflow
-			List<String> code = test( resultIds );
+			List<String> code = searchStackOverflowAPI( resultIds );
 			
 			// Print the results
 			for (String c : code) {
@@ -61,7 +41,6 @@ public class CodeMonkey {
 		} catch (Exception e) {
 			System.out.println( e.getMessage() );
 		}
-*/
 	}
 
 	/**
@@ -103,23 +82,41 @@ public class CodeMonkey {
 	 * @return				list of code sample answers on pages
 	 * @throws Exception
 	 */
-	public static List<String> test( List<String> resultIds ) throws Exception {
+	public static List<String> searchStackOverflowAPI( List<String> resultIds ) throws Exception {
 	    String stackoverflow = "https://api.stackexchange.com/2.2/questions/";
 	    String id = "196830";
 	    String filters = "/answers?filter=withbody&order=desc&sort=votes&site=stackoverflow";
 	    String charset = "UTF-8";
 
 	    URL url = new URL(stackoverflow + id + filters);
-	    Reader reader = new InputStreamReader(url.openStream(), charset);
-	    
-	    System.out.println( "Results" );	// DEBUG
+	    Reader reader = new InputStreamReader(new GZIPInputStream(url.openStream()), charset);
+
 	    StackOverflowResults results = new Gson().fromJson(reader, StackOverflowResults.class);
 	    
-	    System.out.println( "Body" );
-	    String body = results.getItems().get(0).getBody();
-	    System.out.println( body);
+	    List<String> code = new ArrayList<String>();
+	    for ( String s : results.getBodies() ) {
+		    // Cut out the code samples
+		    String page = s.toString();
+		    String startString = "<pre><code>";
+		    String endString = "</code></pre>";
+		    
+		    while(page.contains(startString)){
+		    	// Move to the next occurrence of the tags
+		    	int start = page.indexOf(startString) + startString.length();
+		    	int end = page.indexOf(endString);
+		    	String codeSample = page.substring(start, end);
+		    	
+		    	// Grab the code between the tags
+		    	codeSample = StringEscapeUtils.unescapeHtml4(codeSample);
+		    	code.add(codeSample);
+		    	// TODO: add automatic citation in comments
+		    	
+		    	// Throw away the portion we just used
+		    	page = page.substring(page.indexOf(endString) + endString.length());
+		    }
+	    }
 
-	    return null;
+	    return code;
 	}
 
 	/**
@@ -131,7 +128,7 @@ public class CodeMonkey {
 	 * @return				list of code sample answers on pages
 	 * @throws Exception
 	 */
-	public static List<String> searchStackOverflow( List<String> urls ) throws Exception {
+	public static List<String> searchStackOverflowHTML( List<String> urls ) throws Exception {
 		List<String> code = new ArrayList<String>();
 		
 		// Collect code samples from all URLs
