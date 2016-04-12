@@ -7,6 +7,7 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -18,7 +19,10 @@ public class CodeMonkey {
 		// API
 		try {
 			// Get a query from the user
-			String query = "java iterate through all characters in a string";
+			Scanner sc = new Scanner(System.in);
+			System.out.println("Give me some query you would want code from stackoverflow for");
+			String query = sc.nextLine();
+			sc.close();
 			
 			// Get URLs from Google
 			List<String> urls = searchGoogle( query );
@@ -30,10 +34,14 @@ public class CodeMonkey {
 			}
 			
 			// Get code samples from StackOverflow
-			List<String> code = searchStackOverflowAPI( resultIds );
+			List<String> code = new ArrayList<String>();
+			for(String id : resultIds){
+				code.addAll(searchStackOverflowAPI( id ));
+			}
 			
 			// Print the results
 			for (String c : code) {
+				System.out.println(isCode(c)?"THIS IS CODE":"THIS IS NOT CODE");
 				System.out.println( c );
 				System.out.println( "--------------------" );
 			}
@@ -78,17 +86,16 @@ public class CodeMonkey {
 	/**
 	 * Get code samples from StackOverflow API
 	 * 
-	 * @param resultIds		list of StackOverflow question IDs
+	 * @param resultId		list of StackOverflow question IDs
 	 * @return				list of code sample answers on pages
 	 * @throws Exception
 	 */
-	public static List<String> searchStackOverflowAPI( List<String> resultIds ) throws Exception {
+	public static List<String> searchStackOverflowAPI( String resultId ) throws Exception {
 	    String stackoverflow = "https://api.stackexchange.com/2.2/questions/";
-	    String id = "196830";
 	    String filters = "/answers?filter=withbody&order=desc&sort=votes&site=stackoverflow";
 	    String charset = "UTF-8";
 
-	    URL url = new URL(stackoverflow + id + filters);
+	    URL url = new URL(stackoverflow + resultId + filters);
 	    Reader reader = new InputStreamReader(new GZIPInputStream(url.openStream()), charset);
 
 	    StackOverflowResults results = new Gson().fromJson(reader, StackOverflowResults.class);
@@ -169,5 +176,19 @@ public class CodeMonkey {
 	    
 		// Return all the code samples
 	    return code;
+	}
+	
+	/**
+	 * Naively guess whether or not the string given is actually code
+	 * based on the number of semicolons it contains
+	 * 
+	 * @param s				String that may or may not be code
+	 * @return				whether or not I think it's code
+	 */
+	public static boolean isCode(String s){
+		double cutoff = .00666;	//.00666 chosen so that a line of code with 1 semicolon must exceed 150 characters to not be considered code.
+		double numSemicolons = s.length() - s.replace(";", "").length();
+		double numChars = s.length();
+		return numSemicolons / numChars >= cutoff;
 	}
 }
