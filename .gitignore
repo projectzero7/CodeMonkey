@@ -1,9 +1,6 @@
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
-# Settings files
-.settings/gradle.prefs
-
 # Generated folders
 .gradle/
 bin/
