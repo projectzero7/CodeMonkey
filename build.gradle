@@ -5,6 +5,7 @@ repositories {
 }
 
 dependencies {
+	compile files("${System.properties['JAVA_HOME']}/lib/tools.jar")
 
 	compile "org.apache.commons:commons-lang3:3.4"
 	compile "com.google.code.gson:gson:2.6.2"
