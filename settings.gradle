@@ -1,0 +1,2 @@
+// Set a constant name for the project
+rootProject.name = 'CodeMonkey'
