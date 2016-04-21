@@ -52,7 +52,7 @@
             <command
                   commandId="CodeMonkeyPlugin.commands.sampleCommand"
                   icon="icons/sample.gif"
-                  tooltip="Say hello world"
+                  tooltip="Fetch code sample from Stack Overflow"
                   id="CodeMonkeyPlugin.toolbars.sampleCommand">
             </command>
          </toolbar>
