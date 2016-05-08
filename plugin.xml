@@ -26,7 +26,7 @@
       <key
             commandId="CodeMonkeyPlugin.commands.sampleCommand"
             contextId="org.eclipse.ui.contexts.window"
-            sequence="M1+6"
+            sequence="M1+1"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
    </extension>
@@ -51,8 +51,8 @@
                id="CodeMonkeyPlugin.toolbars.sampleToolbar">
             <command
                   commandId="CodeMonkeyPlugin.commands.sampleCommand"
-                  icon="icons/sample.gif"
-                  tooltip="Fetch code sample from Stack Overflow"
+                  icon="icons/littlemonkey.gif"
+                  tooltip="CodeMonkey"
                   id="CodeMonkeyPlugin.toolbars.sampleCommand">
             </command>
          </toolbar>

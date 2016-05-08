@@ -5,6 +5,13 @@ Bundle-SymbolicName: CodeMonkeyPlugin;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: codemonkeyplugin.Activator
 Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime
+ org.eclipse.core.runtime,
+ org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.jface.text;bundle-version="3.10.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
+Import-Package: org.eclipse.ui.texteditor
+Bundle-ClassPath: .,
+ lib/commons-lang3-3.4.jar,
+ lib/gson-2.6.2.jar
